@@ -5,10 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -25,19 +30,36 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         textView=findViewById(R.id.textview_result);
 
-        //By default Gson ignore the null value in case of patch
-        //but can force Gson
+//        By default Gson ignore the null value in case of patch
+//        but can force Gson
+//        Gson gson =new GsonBuilder().serializeNulls().create();
+//        Retrofit retrofit=new Retrofit.Builder()
+//                .baseUrl("https://jsonplaceholder.typicode.com/")
+//                .addConverterFactory(GsonConverterFactory.create(gson))
+//                .build();
+
+
+
+        //Logging intercepter(Retrofit by default uses OKHTTP client but we will redefine it )
+        HttpLoggingInterceptor httpLoggingInterceptor=new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient okHttpClient=new OkHttpClient.Builder()
+                .addInterceptor(httpLoggingInterceptor)
+                .build();
+
         Retrofit retrofit=new Retrofit.Builder()
                 .baseUrl("https://jsonplaceholder.typicode.com/")
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
                 .build();
 
         jsonPlaceHolderApi= retrofit.create(JsonPlaceHolderApi.class);
         //getPosts();
         //getComments();
         //createPosts();
-        //updatePost();
-        deletePost();
+        updatePost();
+        //deletePost();
     }
     private void getPosts(){
 
@@ -160,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void updatePost(){
         Post post=new Post(12,null,"New Text");
-        Call<Post> call=jsonPlaceHolderApi.patchPost(5,post);
+        Call<Post> call=jsonPlaceHolderApi.putPost(5,post);
         call.enqueue(new Callback<Post>() {
             @Override
             public void onResponse(Call<Post> call, Response<Post> response) {

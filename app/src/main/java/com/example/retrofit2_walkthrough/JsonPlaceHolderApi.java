@@ -67,12 +67,17 @@ public interface JsonPlaceHolderApi {
     @POST("posts")
     Call<Post> createPost(@FieldMap Map<String,String> fields);
 
+
+
+   //Google th difference between PUT and Patch
     @PUT("posts/{id}")
     Call<Post> putPost(@Path("id")int id,@Body Post post);
 
-
     @PATCH("posts/{id}")
     Call<Post> patchPost(@Path("id")int id,@Body Post post);
+
+
+
 
     @DELETE("posts/{id}")
     Call<Void> deletePost(@Path("id")int id);
